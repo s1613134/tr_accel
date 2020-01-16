@@ -562,11 +562,11 @@ EOF1
 		fi
 	    fi
 	    if [ $numCores -gt 1 ] ; then
-			echo "fsl_sub running $numCores cores to process $tasks tasks: $taskfile" >&2
+			echo "[tr_accel]fsl_sub running $numCores cores to process $tasks tasks: $taskfile" >&2
 			n=1
 			while [ $n -le $tasks ] ; do
 				line=`sed -n -e ''${n}'p' $taskfile`
-				logfile=${LogDir}${JobName}.e$$.$n
+#				logfile=${LogDir}${JobName}.e$$.$n
 
 				/bin/sh <<EOF2 > ${LogDir}${JobName}.o$$.$n & 2> ${LogDir}${JobName}.e$$.$n
 $line
