@@ -1,0 +1,80 @@
+# FreeSurfer SUBJECTS_DIR
+# T1 images and FreeSurfer segmentations are expected to be found here
+#
+setenv SUBJECTS_DIR ~/freesurfer_rta
+
+# Output directory where trac-all results will be saved
+# Default: Same as SUBJECTS_DIR
+#
+set dtroot = ~/freesurfer_rta
+
+# Subject IDs
+#
+set subjlist = ( reconall2020 )
+
+# Input diffusion DICOMs
+# If original DICOMs don't exist, these can be in other image format
+# but then the gradient table and b-value table must be specified (see below)
+#
+
+#set dcmroot = $TUTORIAL_DATA/diffusion_tutorial
+set dcmroot = ~/freesurfer_rta/tutorial
+
+#set dcmlist = ( elmo.2005/orig/656000-11-1.dcm \
+#                elmo.2008/orig/97000-000017-000001.dcm \
+#                elmo.2012/orig/MR.1.3.12.2.1107.5.2.32.35006.2012121819455034689828982 )
+set dcmlist = ( DTI30s010.nii )
+
+# Diffusion gradient tables (if there is a different one for each scan)
+# Must be specified if they cannot be read from the DICOM headers
+# The tables must have either three columns, where each row is a gradient vector
+# or three rows, where each column is a gradient vector
+# There must be as many gradient vectors as volumes in the diffusion data set
+# Default: Read from DICOM header
+#
+set bveclist = ( ~/freesurfer_rta/tutorial/DTI30s010.bvec )
+
+#set bvecfile = /path/to/bvecs.txt
+
+# Diffusion b-value tables (if there is a different one for each scan)
+# Must be specified if they cannot be read from the DICOM headers
+# There must be as many b-values as volumes in the diffusion data set
+# Default: Read from DICOM header
+#
+set bvallist = ( ~/freesurfer_rta/tutorial/DTI30s10.bval )
+
+#set bvalfile = /path/to/bvals.txt
+
+#set runlist = (1 2 3)
+set runlist = (1)
+
+set doeddy = 1
+
+set dorotbvecs = 1
+
+set usemaskanat = 1
+
+set thrbet = 0.3
+
+set doregflt = 0
+set doregbbr = 1
+
+set doregmni = 1
+set doregcvs = 0
+
+#set mnitemp = /path/to/mni/template
+#set cvstemp = /cvs/template/name
+#set cvstempdir = /path/to/parent/dir/of/cvstemp
+
+set pathlist = ( lh.cst_AS rh.cst_AS \
+                 lh.ilf_AS rh.ilf_AS \
+                 lh.unc_AS rh.unc_AS \
+                 fmajor_PP fminor_PP \
+                 lh.atr_PP rh.atr_PP \
+                 lh.cab_PP rh.cab_PP \
+                 lh.ccg_PP rh.ccg_PP \
+                 lh.slfp_PP rh.slfp_PP \
+                 lh.slft_PP rh.slft_PP )
+
+set ncpts = (6 6 5 5 5 5 7 5 5 5 5 5 4 4 5 5 5 5)
+
