@@ -10,19 +10,13 @@ set dtroot = ~/freesurfer_rta
 
 # Subject IDs
 #
-set subjlist = ( reconall2020 )
+set subjlist = ( reconall2020_temp )
 
 # Input diffusion DICOMs
 # If original DICOMs don't exist, these can be in other image format
 # but then the gradient table and b-value table must be specified (see below)
 #
-
-#set dcmroot = $TUTORIAL_DATA/diffusion_tutorial
 set dcmroot = ~/freesurfer_rta/tutorial
-
-#set dcmlist = ( elmo.2005/orig/656000-11-1.dcm \
-#                elmo.2008/orig/97000-000017-000001.dcm \
-#                elmo.2012/orig/MR.1.3.12.2.1107.5.2.32.35006.2012121819455034689828982 )
 set dcmlist = ( DTI30s010.nii )
 
 # Diffusion gradient tables (if there is a different one for each scan)
@@ -45,7 +39,6 @@ set bvallist = ( ~/freesurfer_rta/tutorial/DTI30s10.bval )
 
 #set bvalfile = /path/to/bvals.txt
 
-#set runlist = (1 2 3)
 set runlist = (1)
 
 set doeddy = 1
