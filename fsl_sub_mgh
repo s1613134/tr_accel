@@ -539,6 +539,48 @@ EOF1
 		echo "Running commands in: $taskfile" >&2
 	    fi
 
+
+	    [ -z "$FSLPARALLEL" ] && FSLPARALLEL=1; #default FSLPARALLEL=1: parallel processing
+	    numCores=$FSLPARALLEL #number of cores to use...
+		#next: if FSLPARALLEL=1 then autodetect
+		if [ $numCores -eq 1 ] ; then
+			#following lines modified as not all versions of sh support "declare"
+			#declare -i numCores=$(getconf _NPROCESSORS_ONLN)
+			#if [ $numCores -ge 4 ] ; then #ignore hyperthreads
+			#	numCores=$numCores/2
+			#fi
+        	if [ $numCores -eq 1 ] ; then
+            	numCores=$(getconf _NPROCESSORS_ONLN)
+        	fi
+		fi
+	    if [ $numCores -gt 1 ] ; then #GPUs run in parallel, but have limited RAM: disable parallel processing for GPUs
+	    	line=`sed -n -e ''1'p' $taskfile`
+	    	key="_gpu"
+	    	if [ "${line#*$key}" != "$line" ] ; then
+	    		numCores=1
+	    		echo "Only running single thread: command includes $key" >&2
+		fi
+	    fi
+	    if [ $numCores -gt 1 ] ; then
+			echo "fsl_sub running $numCores cores to process $tasks tasks: $taskfile" >&2
+			n=1
+			while [ $n -le $tasks ] ; do
+				line=`sed -n -e ''${n}'p' $taskfile`
+				logfile=${LogDir}${JobName}.e$$.$n
+
+				/bin/sh <<EOF2 > ${LogDir}${JobName}.o$$.$n & 2> ${LogDir}${JobName}.e$$.$n
+$line
+EOF2
+				nPID=`jobs -pr | wc  -l $f`
+				while [ $nPID -ge $numCores ]; do
+					sleep 0.4
+					nPID=`jobs -pr | wc  -l`
+				done
+				n=`expr $n + 1`
+			done
+			wait #pause until ALL jobs are completed
+		else # if [ $numCores -gt 1 ] ; then
+
 	    n=1
 	    while [ $n -le $tasks ] ; do
 		line=`sed -n -e ''${n}'p' $taskfile`
@@ -550,6 +592,8 @@ $line
 EOF2
 		n=`expr $n + 1`
 	    done
+
+		fi # else [ $numCores -gt 1 ] ; then
 	fi	
 	echo $$
 	;;
