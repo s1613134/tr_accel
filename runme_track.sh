@@ -1,8 +1,8 @@
 #!/bin/bash
 export TUTORIAL_DATA=~/freesurfer_rta;export SUBJECTS_DIR=$TUTORIAL_DATA;cd $SUBJECTS_DIR
 
-#trac-all -prep -c ~/git/tr_accel/dmrirc.rta
-#cp -r ~/freesurfer_rta/reconall2020_temp ~/freesurfer_rta/reconall2020_prep
+trac-all -prep -c ~/git/tr_accel/dmrirc.rta
+cp -r ~/freesurfer_rta/reconall2020_temp ~/freesurfer_rta/reconall2020_prep
 
 cp -r ~/freesurfer_rta/reconall2020_prep ~/freesurfer_rta/reconall2020_temp
 FSLPARALLEL=1; export FSLPARALLEL
