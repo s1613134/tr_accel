@@ -1,0 +1,34 @@
+#setenv SUBJECTS_DIR hoge
+
+# Output directory where trac-all results will be saved
+# Default: Same as SUBJECTS_DIR
+#
+set dtroot = $SUBJECTS_DIR/trallall_outputs
+
+# Subject IDs
+#
+set subjlist = (hogehogeid)
+
+# Input diffusion DICOMs
+# If original DICOMs don't exist, these can be in other image format
+# but then the gradient table and b-value table must be specified (see below)
+#
+set dcmroot = $SUBJECTS_DIR
+set dcmlist = (dcmhogehoge)
+
+# Diffusion gradient tables (if there is a different one for each scan)
+# Must be specified if they cannot be read from the DICOM headers
+# The tables must have either three columns, where each row is a gradient vector
+# or three rows, where each column is a gradient vector
+# There must be as many gradient vectors as volumes in the diffusion data set
+# Default: Read from DICOM header
+#
+set bvecfile = $SUBJECTS_DIR/bvecs.txt
+
+# Diffusion b-value tables (if there is a different one for each scan)
+# Must be specified if they cannot be read from the DICOM headers
+# There must be as many b-values as volumes in the diffusion data set
+# Default: Read from DICOM header
+#
+set bvalfile = $SUBJECTS_DIR/bvals.txt
+
