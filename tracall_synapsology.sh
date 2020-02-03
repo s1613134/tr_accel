@@ -92,27 +92,14 @@ freeview -tv dpath/merged_avg33_mni_bbr.mgz \
 COMMENTOUT1
 
 # statistics
-for fid in $(ls |grep $DCM_ID_REGEXP); 
-do 
-	sed -e "s@hogehogeid@$fid@" -e "s@dcmhogehoge@${DCM_ID_HDR}${fid}${DCM_ID_FTR}@" $DMRIRC_TEMPLATE > $DMRIRC_TEMPNAME$fid; 
-	running=$(ps -aux | grep 'trac-all' | wc -l)
-	while [ $running -gt $maxrunning ];
-	do
-		sleep 60
-		running=$(ps -aux | grep 'trac-all' | wc -l)
-	done
-#trac-all -stat -c $DMRIRC_FILENAME
-	trac-all -stat -c $DMRIRC_TEMPNAME$fid &
-done
-
-wait
+trac-all -stat -c $DMRIRC_FILENAME
 
 #rm -fr $QSUB_TEMP_DIR
 
 # QC2
 <<COMMENTOUT2
-less $SUBJECTS_DIR/stats/lh.ilf_AS.avg33_mni_bbr.FA_Avg.txt
+less $SUBJECTS_DIR/trallall_outputs/stats/lh.ilf_AS.avg33_mni_bbr.FA_Avg.txt
 freeview -v $FSLDIR/data/standard/MNI152_T1_1mm_brain.nii.gz \
-         -w $SUBJECTS_DIR/stats/*.path.mean.txt
+         -w $SUBJECTS_DIR/trallall_outputs/stats/*.path.mean.txt
 COMMENTOUT2
 
