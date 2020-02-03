@@ -21,11 +21,11 @@ mkdir $QSUB_TEMP_DIR
 for fid in $(ls |grep $DCM_ID_REGEXP); 
 do 
 	sed -e "s@hogehogeid@$fid@" -e "s@dcmhogehoge@${DCM_ID_HDR}${fid}${DCM_ID_FTR}@" $DMRIRC_TEMPLATE > $DMRIRC_TEMPNAME$fid;
-	running=$(ps -aux | grep 'trac-all' | wc -l)
+	running=$(ps -aux | grep 'bin/trac-all' | wc -l)
 	while [ $running -gt $maxrunning ];
 	do
 		sleep 60
-		running=$(ps -aux | grep 'trac-all' | wc -l)
+		running=$(ps -aux | grep 'bin/trac-all' | wc -l)
 	done
 #trac-all -prep -c $DMRIRC_FILENAME
 	trac-all -prep -c $DMRIRC_TEMPNAME$fid &
@@ -66,11 +66,11 @@ source $TRACKALL_COMMANDLISTNAME.post.txt
 for fid in $(ls |grep $DCM_ID_REGEXP); 
 do 
 	sed -e "s@hogehogeid@$fid@" -e "s@dcmhogehoge@${DCM_ID_HDR}${fid}${DCM_ID_FTR}@" $DMRIRC_TEMPLATE > $DMRIRC_TEMPNAME$fid; 
-	running=$(ps -aux | grep 'trac-all' | wc -l)
+	running=$(ps -aux | grep 'bin/trac-all' | wc -l)
 	while [ $running -gt $maxrunning ];
 	do
 		sleep 60
-		running=$(ps -aux | grep 'trac-all' | wc -l)
+		running=$(ps -aux | grep 'bin/trac-all' | wc -l)
 	done
 #trac-all -path -c $DMRIRC_FILENAME
 	trac-all -path -c $DMRIRC_TEMPNAME$fid &
@@ -102,4 +102,6 @@ less $SUBJECTS_DIR/trallall_outputs/stats/lh.ilf_AS.avg33_mni_bbr.FA_Avg.txt
 freeview -v $FSLDIR/data/standard/MNI152_T1_1mm_brain.nii.gz \
          -w $SUBJECTS_DIR/trallall_outputs/stats/*.path.mean.txt
 COMMENTOUT2
+
+echo "end of hello,world"
 
