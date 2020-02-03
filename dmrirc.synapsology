@@ -55,7 +55,8 @@ set subjlist = (U28*)
 #
 set dcmroot = $SUBJECTS_DIR
 #set dcmlist = (huey/day1/XXX-1.dcm dewey/day1/XXX-1.dcm louie/day2/XXX-1.dcm)
-set dcmlist = (`cat $SUBJECTS_DIR/dcms.txt|xargs`)
+set dcmlist = (D_U28*.nii)
+#set dcmlist = (`cat $SUBJECTS_DIR/dcms.txt|xargs`)
 #echo "COUNT=${#dcmlist[@]}"
 
 # Diffusion gradient tables (if there is a different one for each scan)
