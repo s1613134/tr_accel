@@ -1,50 +1,51 @@
 # users definition
 # note that $SUBJECTS_DIR is overidden in dmrirc.*
 TRACKALL_SCRIPTSDIR=~/git/tr_accel
-DMRIRC_FILENAME=dmrirc.synapsology
+DMRIRC_FILENAME=$TRACKALL_SCRIPTSDIR/dmrirc.synapsology
 DCM_ID_REGEXP=^U28
 DCM_ID_HDR=D_
 DCM_ID_FTR=_PA.nii
+DMRIRC_TEMPLATE=$TRACKALL_SCRIPTSDIR/dmrirc.preptemplate
 
 maxrunning=16
 # common definition
-TRACKALL_COMMANDLISTNAME=parallel_jobs
+TRACKALL_COMMANDLISTNAME=$QSUB_TEMP_DIR/parallel_jobs
 TRACKALL_PARALLELJOBNAME=trcalsub
-DMRIRC_TEMPNAME=dmrirc.temp
-DMRIRC_TEMPLATE=dmrirc.preptemplate
-
+TRACKALL_PARALLELJOBFILE=$QSUB_TEMP_DIR/$TRACKALL_PARALLELJOBNAME
+DMRIRC_TEMPNAME=$QSUB_TEMP_DIR/dmrirc.temp
 QSUB_TEMP_DIR=$SUBJECTS_DIR/qsub_temp
+
 mkdir $QSUB_TEMP_DIR
 
 # preprocess
 for fid in $(ls |grep $DCM_ID_REGEXP); 
 do 
-	sed -e "s@hogehogeid@$fid@" -e "s@dcmhogehoge@${DCM_ID_HDR}${fid}${DCM_ID_FTR}@" $TRACKALL_SCRIPTSDIR/$DMRIRC_TEMPLATE > $QSUB_TEMP_DIR/$DMRIRC_TEMPNAME$fid;
+	sed -e "s@hogehogeid@$fid@" -e "s@dcmhogehoge@${DCM_ID_HDR}${fid}${DCM_ID_FTR}@" $DMRIRC_TEMPLATE > $DMRIRC_TEMPNAME$fid;
 	running=$(ps -aux | grep 'trac-all' | wc -l)
 	while [ $running -gt $maxrunning ];
 	do
 		sleep 60
 		running=$(ps -aux | grep 'trac-all' | wc -l)
 	done
-#trac-all -prep -c $TRACKALL_SCRIPTSDIR/$DMRIRC_FILENAME
-	trac-all -prep -c $QSUB_TEMP_DIR/$DMRIRC_TEMPNAME$fid &
+#trac-all -prep -c $DMRIRC_FILENAME
+	trac-all -prep -c $DMRIRC_TEMPNAME$fid &
 done
 
 wait
 
-# separate trac-all -bedp -c $TRACKALL_SCRIPTSDIR/$DMRIRC_FILENAME
-trac-all -bedp -c $TRACKALL_SCRIPTSDIR/$DMRIRC_FILENAME -jobs $QSUB_TEMP_DIR/$TRACKALL_COMMANDLISTNAME.txt
+# separate trac-all -bedp -c $DMRIRC_FILENAME
+trac-all -bedp -c $DMRIRC_FILENAME -jobs $TRACKALL_COMMANDLISTNAME.txt
 
 # do each process
 # before parallel job
-source $QSUB_TEMP_DIR/$TRACKALL_COMMANDLISTNAME.pre.txt
+source $TRACKALL_COMMANDLISTNAME.pre.txt
 
 # do each line
 numline=0
-cat $QSUB_TEMP_DIR/$TRACKALL_COMMANDLISTNAME.txt|while read line; do
-	sed -e "s@#contents@$line@" $TRACKALL_SCRIPTSDIR/qsub_template.sh > $QSUB_TEMP_DIR/$TRACKALL_PARALLELJOBNAME$numline.sh;
-	qsub -e $QSUB_TEMP_DIR/qsuberr$numline.txt $QSUB_TEMP_DIR/$TRACKALL_PARALLELJOBNAME$numline.sh;
-#	qsub $QSUB_TEMP_DIR/$TRACKALL_PARALLELJOBNAME$numline.sh;
+cat $TRACKALL_COMMANDLISTNAME.txt|while read line; do
+	sed -e "s@#contents@$line@" $TRACKALL_SCRIPTSDIR/qsub_template.sh > $TRACKALL_PARALLELJOBFILE$numline.sh;
+	qsub -e $QSUB_TEMP_DIR/qsuberr$numline.txt $TRACKALL_PARALLELJOBFILE$numline.sh;
+#	qsub $TRACKALL_PARALLELJOBFILE$numline.sh;
 	numline=`expr $numline + 1`;
 done
 
@@ -59,20 +60,20 @@ done
 rm $SUBJECTS_DIR/$TRACKALL_PARALLELJOBNAME*.sh.o*
 
 # after parallel job
-source $QSUB_TEMP_DIR/$TRACKALL_COMMANDLISTNAME.post.txt
+source $TRACKALL_COMMANDLISTNAME.post.txt
 
 # postprocess
 for fid in $(ls |grep $DCM_ID_REGEXP); 
 do 
-	sed -e "s@hogehogeid@$fid@" -e "s@dcmhogehoge@${DCM_ID_HDR}${fid}${DCM_ID_FTR}@" $TRACKALL_SCRIPTSDIR/$DMRIRC_TEMPLATE > $QSUB_TEMP_DIR/$DMRIRC_TEMPNAME$fid; 
+	sed -e "s@hogehogeid@$fid@" -e "s@dcmhogehoge@${DCM_ID_HDR}${fid}${DCM_ID_FTR}@" $DMRIRC_TEMPLATE > $DMRIRC_TEMPNAME$fid; 
 	running=$(ps -aux | grep 'trac-all' | wc -l)
 	while [ $running -gt $maxrunning ];
 	do
 		sleep 60
 		running=$(ps -aux | grep 'trac-all' | wc -l)
 	done
-#trac-all -path -c $TRACKALL_SCRIPTSDIR/$DMRIRC_FILENAME
-	trac-all -path -c $QSUB_TEMP_DIR/$DMRIRC_TEMPNAME$fid &
+#trac-all -path -c $DMRIRC_FILENAME
+	trac-all -path -c $DMRIRC_TEMPNAME$fid &
 done
 
 wait
@@ -93,15 +94,15 @@ COMMENTOUT1
 # statistics
 for fid in $(ls |grep $DCM_ID_REGEXP); 
 do 
-	sed -e "s@hogehogeid@$fid@" -e "s@dcmhogehoge@${DCM_ID_HDR}${fid}${DCM_ID_FTR}@" $TRACKALL_SCRIPTSDIR/$DMRIRC_TEMPLATE > $QSUB_TEMP_DIR/$DMRIRC_TEMPNAME$fid; 
+	sed -e "s@hogehogeid@$fid@" -e "s@dcmhogehoge@${DCM_ID_HDR}${fid}${DCM_ID_FTR}@" $DMRIRC_TEMPLATE > $DMRIRC_TEMPNAME$fid; 
 	running=$(ps -aux | grep 'trac-all' | wc -l)
 	while [ $running -gt $maxrunning ];
 	do
 		sleep 60
 		running=$(ps -aux | grep 'trac-all' | wc -l)
 	done
-#trac-all -stat -c $TRACKALL_SCRIPTSDIR/$DMRIRC_FILENAME
-	trac-all -stat -c $QSUB_TEMP_DIR/$DMRIRC_TEMPNAME$fid &
+#trac-all -stat -c $DMRIRC_FILENAME
+	trac-all -stat -c $DMRIRC_TEMPNAME$fid &
 done
 
 wait
