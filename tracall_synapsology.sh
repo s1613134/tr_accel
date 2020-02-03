@@ -2,16 +2,35 @@
 # note that $SUBJECTS_DIR is overidden in dmrirc.*
 TRACKALL_SCRIPTSDIR=~/git/tr_accel
 DMRIRC_FILENAME=dmrirc.synapsology
+DCM_ID_REGEXP=^U28
+DCM_ID_HDR=D_
+DCM_ID_FTR=_PA.nii
 
+maxrunning=16
 # common definition
 TRACKALL_COMMANDLISTNAME=parallel_jobs
 TRACKALL_PARALLELJOBNAME=trcalsub
-
-# preprocess
-trac-all -prep -c $TRACKALL_SCRIPTSDIR/$DMRIRC_FILENAME
+DMRIRC_TEMPNAME=dmrirc.temp
+DMRIRC_TEMPLATE=dmrirc.preptemplate
 
 QSUB_TEMP_DIR=$SUBJECTS_DIR/qsub_temp
 mkdir $QSUB_TEMP_DIR
+
+# preprocess
+for fid in $(ls |grep $DCM_ID_REGEXP); 
+do 
+	sed -e "s@hogehogeid@$fid@" -e "s@dcmhogehoge@${DCM_ID_HDR}${fid}${DCM_ID_FTR}@" $TRACKALL_SCRIPTSDIR/$DMRIRC_TEMPLATE > $QSUB_TEMP_DIR/$DMRIRC_TEMPNAME$fid;
+	running=$(ps -aux | grep 'trac-all' | wc -l)
+	while [ $running -gt $maxrunning ];
+	do
+		sleep 60
+		running=$(ps -aux | grep 'trac-all' | wc -l)
+	done
+#trac-all -prep -c $TRACKALL_SCRIPTSDIR/$DMRIRC_FILENAME
+	trac-all -prep -c $QSUB_TEMP_DIR/$DMRIRC_TEMPNAME$fid &
+done
+
+wait
 
 # separate trac-all -bedp -c $TRACKALL_SCRIPTSDIR/$DMRIRC_FILENAME
 trac-all -bedp -c $TRACKALL_SCRIPTSDIR/$DMRIRC_FILENAME -jobs $QSUB_TEMP_DIR/$TRACKALL_COMMANDLISTNAME.txt
@@ -42,10 +61,21 @@ rm $SUBJECTS_DIR/$TRACKALL_PARALLELJOBNAME*.sh.o*
 # after parallel job
 source $QSUB_TEMP_DIR/$TRACKALL_COMMANDLISTNAME.post.txt
 
-#rm -fr $QSUB_TEMP_DIR
-
 # postprocess
-trac-all -path -c $TRACKALL_SCRIPTSDIR/$DMRIRC_FILENAME
+for fid in $(ls |grep $DCM_ID_REGEXP); 
+do 
+	sed -e "s@hogehogeid@$fid@" -e "s@dcmhogehoge@${DCM_ID_HDR}${fid}${DCM_ID_FTR}@" $TRACKALL_SCRIPTSDIR/$DMRIRC_TEMPLATE > $QSUB_TEMP_DIR/$DMRIRC_TEMPNAME$fid; 
+	running=$(ps -aux | grep 'trac-all' | wc -l)
+	while [ $running -gt $maxrunning ];
+	do
+		sleep 60
+		running=$(ps -aux | grep 'trac-all' | wc -l)
+	done
+#trac-all -path -c $TRACKALL_SCRIPTSDIR/$DMRIRC_FILENAME
+	trac-all -path -c $QSUB_TEMP_DIR/$DMRIRC_TEMPNAME$fid &
+done
+
+wait
 
 # QC
 <<COMMENTOUT1
@@ -61,7 +91,22 @@ freeview -tv dpath/merged_avg33_mni_bbr.mgz \
 COMMENTOUT1
 
 # statistics
-trac-all -stat -c $TRACKALL_SCRIPTSDIR/$DMRIRC_FILENAME
+for fid in $(ls |grep $DCM_ID_REGEXP); 
+do 
+	sed -e "s@hogehogeid@$fid@" -e "s@dcmhogehoge@${DCM_ID_HDR}${fid}${DCM_ID_FTR}@" $TRACKALL_SCRIPTSDIR/$DMRIRC_TEMPLATE > $QSUB_TEMP_DIR/$DMRIRC_TEMPNAME$fid; 
+	running=$(ps -aux | grep 'trac-all' | wc -l)
+	while [ $running -gt $maxrunning ];
+	do
+		sleep 60
+		running=$(ps -aux | grep 'trac-all' | wc -l)
+	done
+#trac-all -stat -c $TRACKALL_SCRIPTSDIR/$DMRIRC_FILENAME
+	trac-all -stat -c $QSUB_TEMP_DIR/$DMRIRC_TEMPNAME$fid &
+done
+
+wait
+
+#rm -fr $QSUB_TEMP_DIR
 
 # QC2
 <<COMMENTOUT2
