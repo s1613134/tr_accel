@@ -49,6 +49,15 @@ cat $TRACKALL_COMMANDLISTNAME.txt|while read line; do
 	numline=`expr $numline + 1`;
 done
 
+# wait until any job starts
+running=$(qstat|grep '$TRACKALL_PARALLELJOBNAME'|wc -l)
+while [ $running -eq 0 ];
+do
+echo "[tracall_synapsology]wait a second"
+	sleep 1
+    	running=$(qstat|grep '$TRACKALL_PARALLELJOBNAME'|wc -l)
+done
+
 # wait until all job done
 running=$(qstat|grep '$TRACKALL_PARALLELJOBNAME'|wc -l)
 while [ $running -gt 0 ];
