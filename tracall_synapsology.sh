@@ -1,5 +1,8 @@
+#!/bun/bash
+set -x # debug mode
+
 # users definition
-# note that $SUBJECTS_DIR is overidden in dmrirc.*
+# note that $SUBJECTS_DIR may be overidden in dmrirc.*
 TRACKALL_SCRIPTSDIR=~/git/tr_accel
 DMRIRC_FILENAME=$TRACKALL_SCRIPTSDIR/dmrirc.synapsology
 DCM_ID_REGEXP=^U28
@@ -7,7 +10,6 @@ DCM_ID_HDR=D_
 DCM_ID_FTR=_PA.nii
 DMRIRC_TEMPLATE=$TRACKALL_SCRIPTSDIR/dmrirc.preptemplate
 
-maxrunning=16
 # common definition
 QSUB_TEMP_DIR=$SUBJECTS_DIR/qsub_temp
 TRACKALL_COMMANDLISTNAME=$QSUB_TEMP_DIR/parallel_jobs
@@ -16,6 +18,7 @@ TRACKALL_PARALLELJOBFILE=$QSUB_TEMP_DIR/$TRACKALL_PARALLELJOBNAME
 DMRIRC_TEMPNAME=$QSUB_TEMP_DIR/dmrirc.temp
 
 mkdir $QSUB_TEMP_DIR
+maxrunning=$(getconf _NPROCESSORS_ONLN)
 
 # preprocess
 for fid in $(ls |grep $DCM_ID_REGEXP); 
