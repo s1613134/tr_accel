@@ -80,7 +80,7 @@ wait
 
 # QC
 <<COMMENTOUT1
-cd $SUBJECTS_DIR/hoge
+cd $SUBJECTS_DIR/trallall_outputs/hoge
 less dmri/dwi_motion.txt
 freeview dmri/dtifit_FA.nii.gz
 freeview -v $FSLDIR/data/standard/MNI152_T1_1mm_brain.nii.gz dmri/mni/dtifit_FA.bbr.nii.gz
