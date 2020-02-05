@@ -106,5 +106,5 @@ freeview -v $FSLDIR/data/standard/MNI152_T1_1mm_brain.nii.gz \
          -w $SUBJECTS_DIR/trallall_outputs/stats/*.path.mean.txt
 COMMENTOUT2
 
-echo "end of hello,world"
+echo "end of tracall_synapsology.sh"
 
