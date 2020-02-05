@@ -1,4 +1,4 @@
-#!/bun/bash
+#!/bin/bash
 set -x # debug mode
 
 # users definition
