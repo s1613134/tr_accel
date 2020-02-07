@@ -2,7 +2,7 @@
 set -x # debug mode
 
 # users definition
-BASELONG_ID_REGEXP=^U280??_[12]$
+BASELONG_ID_REGEXP=^U280.._[12]$
 
 FRSURFER_SCRIPTNAME=/usr/local/freesurfer/bin/recon-all
 
