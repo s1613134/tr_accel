@@ -2,8 +2,9 @@
 set -x # debug mode
 
 # users definition
+FRSURFER_SCRIPTSDIR=~/git/fs-scripts
 FRSURFER_SCRIPTNAME=/usr/local/freesurfer/bin/recon-all
-ANALYSIS_ID_REGEXP=^U2800[34]_MR[12]$
+ANALYSIS_ID_REGEXP=^U2800??_[12]$
 
 maxrunning=$(getconf _NPROCESSORS_ONLN)
 
@@ -42,6 +43,11 @@ wait
 #<analysisID>/mri/brainstemSslabels.v10.mgz
 #<analysisID>/mri/brainstemSslabels.v10.FsvoxelSpace.mgz
 #<analysisID>/mri/brainstemSsVolumes.v10.txt
+
+$FRSURFER_SCRIPTSDIR/fs_stats_hipposf.sh $ANALYSIS_ID_REGEXP
+
+timestamp=$(date +%Y%m%d_%H%M)
+quantifyBrainstemStructures.sh tables/${timestamp}_brainstem.csv
 
 echo "end of reconsubfieldall.sh"
 
