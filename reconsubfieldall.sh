@@ -3,8 +3,9 @@ set -x # debug mode
 
 # users definition
 FRSURFER_SCRIPTSDIR=~/git/fs-scripts
+ANALYSIS_ID_REGEXP=^U280??_[12]$
+
 FRSURFER_SCRIPTNAME=/usr/local/freesurfer/bin/recon-all
-ANALYSIS_ID_REGEXP=^U2800??_[12]$
 
 maxrunning=$(getconf _NPROCESSORS_ONLN)
 
