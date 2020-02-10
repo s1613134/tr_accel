@@ -11,11 +11,12 @@ maxrunning=$(getconf _NPROCESSORS_ONLN)
 
 for fid in $(ls |grep "$ANALYSIS_ID_REGEXP"); 
 do 
-	running=$(expr $(ps -aux|grep recon-all|wc -l) / 2 + 1) # 1 for grep itself
+	running=$(ps -aux|grep "$FRSURFER_SCRIPTNAME"|while read -a tempary;do for ii in "${!tempary[@]}";do if [ $ii -ge 12 ];then echo -n "${tempary[$ii]} ";fi;done;echo "";done|sort|uniq|wc -l)
 	while [ $running -gt $maxrunning ];
 	do
 		sleep 60
-		running=$(expr $(ps -aux|grep recon-all|wc -l) / 2 + 1) # 1 for grep itself
+		running=$(ps -aux|grep "$FRSURFER_SCRIPTNAME"|while read -a tempary;do for ii in "${!tempary[@]}";do if [ $ii -ge 12 ];then echo -n "${tempary[$ii]} ";fi;done;echo "";done|sort|uniq|wc -l)
+
 	done
 	$FRSURFER_SCRIPTNAME -s $fid -hippocampal-subfields-T1 &
 done
@@ -24,11 +25,11 @@ wait
 
 for fid in $(ls |grep "$ANALYSIS_ID_REGEXP"); 
 do 
-	running=$(expr $(ps -aux|grep recon-all|wc -l) / 2 + 1) # 1 for grep itself
+	running=$(ps -aux|grep "$FRSURFER_SCRIPTNAME"|while read -a tempary;do for ii in "${!tempary[@]}";do if [ $ii -ge 12 ];then echo -n "${tempary[$ii]} ";fi;done;echo "";done|sort|uniq|wc -l)
 	while [ $running -gt $maxrunning ];
 	do
 		sleep 60
-		running=$(expr $(ps -aux|grep recon-all|wc -l) / 2 + 1) # 1 for grep itself
+		running=$(ps -aux|grep "$FRSURFER_SCRIPTNAME"|while read -a tempary;do for ii in "${!tempary[@]}";do if [ $ii -ge 12 ];then echo -n "${tempary[$ii]} ";fi;done;echo "";done|sort|uniq|wc -l)
 	done
 	$FRSURFER_SCRIPTNAME -s $fid -brainstem-structures &
 done
