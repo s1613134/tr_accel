@@ -3,8 +3,8 @@ set -x # debug mode
 
 # users definition
 TBSSALL_ID=D_U280*_*_PA
-TBSSALL_1REGEXP=D_U280.*_1_PA$
-TBSSALL_2REGEXP=D_U280.*_2_PA$
+TBSSALL_1REGEXP=^D_U280.*_1_PA$
+TBSSALL_2REGEXP=^D_U280.*_2_PA$
 
 #cd $SUBJECTS_DIR
 temp_n1=$(ls |grep ${TBSSALL_1REGEXP}|wc -l)
@@ -14,7 +14,7 @@ temp_n2=$(ls |grep ${TBSSALL_2REGEXP}|wc -l)
 export FSLPARALLEL=1
 
 # FA
-mkdir TBSS;cp ${TBSSALL_ID}/*FA.nii.gz TBSS
+mkdir TBSS;mv ${TBSSALL_ID}/*FA.nii.gz TBSS
 cd TBSS;
 tbss_1_preproc *FA.nii.gz
 tbss_2_reg -T
@@ -24,7 +24,7 @@ tbss_4_prestats 0.2
 
 
 # nonFA
-mkdir MD;cp ../${TBSSALL_ID}/*MD.nii.gz MD
+mkdir MD;mv ../${TBSSALL_ID}/*MD.nii.gz MD
 rename "s/_MD.nii.gz/_FA.nii.gz/" MD/*_MD.nii.gz
 tbss_non_FA MD
 
