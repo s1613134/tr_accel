@@ -47,10 +47,10 @@ fi
 
 
 #Check if the files are specified
-if [ $# -lt 1 ]
+if [ $# -lt 2 ]
 then
-  echo "Please specify subjectlist"
-  echo "Usage: $0 <subjectlist>"
+  echo "Please specify subjectlist and dmrirc file!"
+  echo "Usage: $0 <subjectlist> <dmrirc>"
   exit 1
 fi
 
@@ -80,7 +80,7 @@ done
 #Confirm subjectlist and dmrirc
 while true
 do
-  echo "subjectlist is ${1}."
+  echo "subjectlist is ${1} and dmrirc is ${2}."
   echo "Are they correct (yes/no)?"
 
   read answer
@@ -111,11 +111,13 @@ do
     running=$(ps -aux | grep 'bin/trac-all' | wc -l)
   done
   { trac-all -prep -c $2 -i $dwi -s $fsid ;\
-    trac-all -bedp -c $2 -s $fsid ;\
+    trac-all -bedp -c $2 -i $dwi -s $fsid ;\
     trac-all -path -c $2 -s $fsid ; } &
   fsid_list=${fsid_list}" "$fsid
   echo "fsid_list is "${fsid_list} 
 done
+
+wait
 
 # auto retry
 temphoge=$(grep "^set dtroot = " $2);eval $(echo ${temphoge#set}|sed -e "s/ //g") # set dtroot
@@ -135,7 +137,7 @@ do
 	  mv -b ${dtroot}/${fsid}/scripts/trac-all.log ${dtroot}/${fsid}/scripts/trac-all.log.old
 	  dwi=D_${fsid}_PA.nii
 	  { trac-all -prep -c $2 -i $dwi -s $fsid ;\
-	    trac-all -bedp -c $2 -s $fsid ;\
+	    trac-all -bedp -c $2 -i $dwi -s $fsid ;\
 	    trac-all -path -c $2 -s $fsid ; } &
 	done # while read fsid
 	grep "trac-paths exited with ERRORS" ${dtroot}/U280*/scripts/trac-all.log|while read templine;do set ${templine//\//  };echo ${$(expr ${dtrootdepth} + 1)};done|sort|uniq>${dtroot}/trac_path_retrylist.txt
