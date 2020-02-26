@@ -9,14 +9,16 @@
 
 #set -x #for debugging
 
+<<COMMENTOUT
 # definition in late dmrirc file
 # Output directory where trac-all results will be saved
-export dtroot=$SUBJECTS_DIR/tracula # trallall_outputs
+export dtroot=${SUBJECTS_DIR}/tracula # trallall_outputs
 #set subjlist = (hogehogeid) # use -s option!
-export dcmroot=$SUBJECTS_DIR # /mnt/data/synapsology
+export dcmroot=/mnt/data/synapsology # ${SUBJECTS_DIR}
 #set dcmlist = (dcmhogehoge) # use -i option!
-export bvecfile=$SUBJECTS_DIR/bvecs_synapsology.txt
-export bvalfile=$SUBJECTS_DIR/bvals_synapsology.txt
+export bvecfile=${SUBJECTS_DIR}/bvecs_synapsology.txt
+export bvalfile=${SUBJECTS_DIR}/bvals_synapsology.txt
+COMMENTOUT
 
 #Check OS
 os=$(uname)
@@ -108,9 +110,9 @@ do
     sleep 60
     running=$(ps -aux | grep 'bin/trac-all' | wc -l)
   done
-  { trac-all -prep -i $dwi -s $fsid ;\
-    trac-all -bedp -s $fsid ;\
-    trac-all -path -s $fsid ; } &
+  { trac-all -prep -c $2 -i $dwi -s $fsid ;\
+    trac-all -bedp -c $2 -s $fsid ;\
+    trac-all -path -c $2 -s $fsid ; } &
   fsid_list=${fsid_list}" "$fsid
   echo "fsid_list is "${fsid_list} 
 done
@@ -131,16 +133,16 @@ do
 	  done # while [ $running -gt $maxrunning ];
 	  mv -b ${dtroot}/${fsid}/scripts/trac-all.log ${dtroot}/${fsid}/scripts/trac-all.log.old
 	  dwi=D_${fsid}_PA.nii
-	  { trac-all -prep -i $dwi -s $fsid ;\
-	    trac-all -bedp -s $fsid ;\
-	    trac-all -path -s $fsid ; } &
+	  { trac-all -prep -c $2 -i $dwi -s $fsid ;\
+	    trac-all -bedp -c $2 -s $fsid ;\
+	    trac-all -path -c $2 -s $fsid ; } &
 	done # while read fsid
 	grep "trac-paths exited with ERRORS" ${dtroot}/U280*/scripts/trac-all.log|while read templine;do set ${templine//\//  };echo ${$(expr ${dtrootdepth} + 1)};done|sort|uniq>${dtroot}/trac_path_retrylist.txt
 	trac_path_retryfidnum=$(cat ${dtroot}/trac_path_retrylist.txt|wc -l)
 done # while [ $trac_path_retryfidnum -gt 0 ];
 
 wait
-trac-all -stat -s $fsid_list
+trac-all -stat -c $2 -s $fsid_list
 
 echo "fsid_list is "${fsid_list} 
 echo "the end of fs_autotrac_parallel"
