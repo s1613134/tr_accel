@@ -118,6 +118,7 @@ do
 done
 
 # auto retry
+temphoge=$(grep "^set dtroot = " $2);eval $(echo ${temphoge#set}|sed -e "s/ //g") # set dtroot
 dtrootdepth=$(echo ${dtroot}|sed -e "s@/@ @g"|wc -w)
 grep "trac-paths exited with ERRORS" ${dtroot}/U280*/scripts/trac-all.log|while read templine;do set ${templine//\//  };echo ${$(expr ${dtrootdepth} + 1)};done|sort|uniq>${dtroot}/trac_path_retrylist.txt
 trac_path_retryfidnum=$(cat ${dtroot}/trac_path_retrylist.txt|wc -l)
