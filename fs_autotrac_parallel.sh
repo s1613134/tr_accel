@@ -11,12 +11,12 @@
 
 # definition in late dmrirc file
 # Output directory where trac-all results will be saved
-set dtroot = $SUBJECTS_DIR/tracula # trallall_outputs
+export dtroot=$SUBJECTS_DIR/tracula # trallall_outputs
 #set subjlist = (hogehogeid) # use -s option!
-set dcmroot = $SUBJECTS_DIR # /mnt/data/synapsology
+export dcmroot=$SUBJECTS_DIR # /mnt/data/synapsology
 #set dcmlist = (dcmhogehoge) # use -i option!
-set bvecfile = $SUBJECTS_DIR/bvecs.txt
-set bvalfile = $SUBJECTS_DIR/bvals.txt
+export bvecfile=$SUBJECTS_DIR/bvecs_synapsology.txt
+export bvalfile=$SUBJECTS_DIR/bvals_synapsology.txt
 
 #Check OS
 os=$(uname)
@@ -109,7 +109,7 @@ do
     running=$(ps -aux | grep 'bin/trac-all' | wc -l)
   done
   { trac-all -prep -i $dwi -s $fsid ;\
-    trac-all -bedp -i $dwi -s $fsid ;\
+    trac-all -bedp -s $fsid ;\
     trac-all -path -s $fsid ; } &
   fsid_list=${fsid_list}" "$fsid
   echo "fsid_list is "${fsid_list} 
@@ -132,7 +132,7 @@ do
 	  mv -b ${dtroot}/${fsid}/scripts/trac-all.log ${dtroot}/${fsid}/scripts/trac-all.log.old
 	  dwi=D_${fsid}_PA.nii
 	  { trac-all -prep -i $dwi -s $fsid ;\
-	    trac-all -bedp -i $dwi -s $fsid ;\
+	    trac-all -bedp -s $fsid ;\
 	    trac-all -path -s $fsid ; } &
 	done # while read fsid
 	grep "trac-paths exited with ERRORS" ${dtroot}/U280*/scripts/trac-all.log|while read templine;do set ${templine//\//  };echo ${$(expr ${dtrootdepth} + 1)};done|sort|uniq>${dtroot}/trac_path_retrylist.txt
@@ -145,5 +145,5 @@ trac-all -stat -s $fsid_list
 echo "fsid_list is "${fsid_list} 
 echo "the end of fs_autotrac_parallel"
 
-exit
+#exit
 
