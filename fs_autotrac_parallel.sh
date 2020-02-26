@@ -90,6 +90,7 @@ done
 
 
 #trac-all -prep
+fsid_list=""
 cat $1 | while read fsid dwi
 do
   running=$(ps -aux | grep 'bin/trac-all' | wc -l)
@@ -100,10 +101,15 @@ do
   done
   { trac-all -prep -c $2 -i $dwi -s $fsid ;\
     trac-all -bedp -c $2 -s $fsid ;\
-    trac-all -path -c $2 -s $fsid ;\
-    trac-all -stat -c $2 -s $fsid; } &
-
+    trac-all -path -c $2 -s $fsid ; } &
+  fsid_list=${fsid_list}" "$fsid
+  echo "fsid_list is "${fsid_list} 
 done
+
+wait
+
+trac-all -stat -c $2 -s $fsid_list
+echo "the end of fs_autotrac_parallel"
 
 exit
 
