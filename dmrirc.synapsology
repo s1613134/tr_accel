@@ -41,7 +41,7 @@ set dtroot = $SUBJECTS_DIR/trallall_outputs
 # Subject IDs
 #
 #set subjlist = (huey dewey louie)
-set subjlist = (U28*)
+#set subjlist = (  )
 #echo "COUNT=${#subjlist[@]}"
 
 # In case you want to analyze only Huey and Louie
@@ -53,9 +53,9 @@ set subjlist = (U28*)
 # If original DICOMs don't exist, these can be in other image format
 # but then the gradient table and b-value table must be specified (see below)
 #
-set dcmroot = $SUBJECTS_DIR
+set dcmroot = /mnt/data/synapsology
 #set dcmlist = (huey/day1/XXX-1.dcm dewey/day1/XXX-1.dcm louie/day2/XXX-1.dcm)
-set dcmlist = (D_U28*.nii)
+#set dcmlist = (  )
 #set dcmlist = (`cat $SUBJECTS_DIR/dcms.txt|xargs`)
 #echo "COUNT=${#dcmlist[@]}"
 
@@ -77,7 +77,7 @@ set dcmlist = (D_U28*.nii)
 # There must be as many gradient vectors as volumes in the diffusion data set
 # Default: Read from DICOM header
 #
-set bvecfile = $SUBJECTS_DIR/bvecs.txt
+set bvecfile = $SUBJECTS_DIR/bvecs_synapsology.txt
 
 # Diffusion b-value tables (if there is a different one for each scan)
 # Must be specified if they cannot be read from the DICOM headers
@@ -93,7 +93,7 @@ set bvecfile = $SUBJECTS_DIR/bvecs.txt
 # There must be as many b-values as volumes in the diffusion data set
 # Default: Read from DICOM header
 #
-set bvalfile = $SUBJECTS_DIR/bvals.txt
+set bvalfile = $SUBJECTS_DIR/bvals_synapsology.txt
 
 # Perform registration-based B0-inhomogeneity compensation?
 # Default: 0 (no)
@@ -171,7 +171,7 @@ set bvalfile = $SUBJECTS_DIR/bvals.txt
 # Only used if doregcvs = 1
 # Default: $FREESURFER_HOME/subjects
 #
-set cvstempdir = /path/to/cvs/atlases/of/ducks
+#set cvstempdir = /path/to/cvs/atlases/of/ducks
 
 # Use brain mask extracted from T1 image instead of low-b diffusion image?
 # Has no effect if there is no T1 data
@@ -206,7 +206,7 @@ COMMENTOUT
 # This text file lists the locations of training subject directories
 # Default: $FREESURFER_HOME/trctrain/trainlist.txt
 #
-set trainfile = $FREESURFER_HOME/trctrain/trainlist.txt
+#set trainfile = $FREESURFER_HOME/trctrain/trainlist.txt
 
 # Number of "sticks" (anisotropic diffusion compartments) in the bedpostx
 # ball-and-stick model
