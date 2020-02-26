@@ -140,11 +140,11 @@ do
 	    trac-all -bedp -c $2 -i $dwi -s $fsid ;\
 	    trac-all -path -c $2 -s $fsid ; } &
 	done # while read fsid
+	wait
 	grep "trac-paths exited with ERRORS" ${dtroot}/U280*/scripts/trac-all.log|while read templine;do set ${templine//\//  };echo ${$(expr ${dtrootdepth} + 1)};done|sort|uniq>${dtroot}/trac_path_retrylist.txt
 	trac_path_retryfidnum=$(cat ${dtroot}/trac_path_retrylist.txt|wc -l)
 done # while [ $trac_path_retryfidnum -gt 0 ];
 
-wait
 trac-all -stat -c $2 -s $fsid_list
 
 echo "fsid_list is "${fsid_list} 
