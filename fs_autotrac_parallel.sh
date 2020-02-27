@@ -117,13 +117,23 @@ do
   echo "fsid_list is "${fsid_list} 
 done
 
-wait
+# "wait" can not catch trac-all!!
+running=$(ps -aux | grep 'bin/trac-all' | wc -l)
+while [ $running -gt 1 ]; # 1 for grep itself
+do
+	sleep 60
+	running=$(ps -aux | grep 'bin/trac-all' | wc -l)
+done # wait
 
 # auto retry
 temphoge=$(grep "^set dtroot = " $2);eval $(echo ${temphoge#set}|sed -e "s/ //g") # set dtroot
 dtrootdepth=$(echo ${dtroot}|sed -e "s@/@ @g"|wc -w)
-grep "trac-paths exited with ERRORS" ${dtroot}/U280*/scripts/trac-all.log|while read templine;do set ${templine//\//  };echo ${$(expr ${dtrootdepth} + 1)};done|sort|uniq>${dtroot}/trac_path_retrylist.txt
+#grep "trac-preproc exited with ERRORS" ${dtroot}/U280*/scripts/trac-all.log|while read templine;do set ${templine//\//  };echo ${$(expr ${dtrootdepth} + 1)};done|sort|uniq>${dtroot}/trac_path_retrylist.txt
+#grep "trac-paths exited with ERRORS" ${dtroot}/U280*/scripts/trac-all.log|while read templine;do set ${templine//\//  };echo ${$(expr ${dtrootdepth} + 1)};done|sort|uniq>${dtroot}/trac_path_retrylist.txt
+grep " exited with ERRORS" ${dtroot}/U280*/scripts/trac-all.log|while read templine;do set ${templine//\//  };echo ${$(expr ${dtrootdepth} + 1)};done|sort|uniq>${dtroot}/trac_path_retrylist.txt
 trac_path_retryfidnum=$(cat ${dtroot}/trac_path_retrylist.txt|wc -l)
+echo trac_path_retryfidnum=${trac_path_retryfidnum}
+<<AUTORETRY_COMMENTOUT
 while [ $trac_path_retryfidnum -gt 0 ];
 do
 	cat ${dtroot}/trac_path_retrylist.txt| while read fsid
@@ -140,10 +150,17 @@ do
 	    trac-all -bedp -c $2 -i $dwi -s $fsid ;\
 	    trac-all -path -c $2 -s $fsid ; } &
 	done # while read fsid
-	wait
-	grep "trac-paths exited with ERRORS" ${dtroot}/U280*/scripts/trac-all.log|while read templine;do set ${templine//\//  };echo ${$(expr ${dtrootdepth} + 1)};done|sort|uniq>${dtroot}/trac_path_retrylist.txt
+	# "wait" can not catch trac-all!!
+	running=$(ps -aux | grep 'bin/trac-all' | wc -l)
+	while [ $running -gt 1 ]; # 1 for grep itself
+	do
+	    sleep 60
+	    running=$(ps -aux | grep 'bin/trac-all' | wc -l)
+	done # wait
+	grep " exited with ERRORS" ${dtroot}/U280*/scripts/trac-all.log|while read templine;do set ${templine//\//  };echo ${$(expr ${dtrootdepth} + 1)};done|sort|uniq>${dtroot}/trac_path_retrylist.txt
 	trac_path_retryfidnum=$(cat ${dtroot}/trac_path_retrylist.txt|wc -l)
 done # while [ $trac_path_retryfidnum -gt 0 ];
+AUTORETRY_COMMENTOUT
 
 trac-all -stat -c $2 -s $fsid_list
 
