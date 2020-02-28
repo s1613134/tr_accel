@@ -9,16 +9,6 @@
 
 #set -x #for debugging
 
-<<COMMENTOUT
-# definition in late dmrirc file
-# Output directory where trac-all results will be saved
-export dtroot=${SUBJECTS_DIR}/tracula # trallall_outputs
-#set subjlist = (hogehogeid) # use -s option!
-export dcmroot=/mnt/data/synapsology # ${SUBJECTS_DIR}
-#set dcmlist = (dcmhogehoge) # use -i option!
-export bvecfile=${SUBJECTS_DIR}/bvecs_synapsology.txt
-export bvalfile=${SUBJECTS_DIR}/bvals_synapsology.txt
-COMMENTOUT
 
 #Check OS
 os=$(uname)
@@ -99,9 +89,7 @@ do
   esac
 done
 
-
-#trac-all -prep -bedp -path
-fsid_list=""
+#trac-all -prep
 cat $1 | while read fsid dwi
 do
   running=$(ps -aux | grep 'bin/trac-all' | wc -l)
@@ -110,13 +98,8 @@ do
     sleep 60
     running=$(ps -aux | grep 'bin/trac-all' | wc -l)
   done
-  { trac-all -prep -c $2 -i $dwi -s $fsid ;\
-    trac-all -bedp -c $2 -i $dwi -s $fsid ;\
-    trac-all -path -c $2 -s $fsid ; } &
-  fsid_list=${fsid_list}" "$fsid
-  echo "fsid_list is "${fsid_list} 
+  trac-all -prep -c $2 -i $dwi -s $fsid &
 done
-
 # "wait" can not catch trac-all!!
 running=$(ps -aux | grep 'bin/trac-all' | wc -l)
 while [ $running -gt 1 ]; # 1 for grep itself
@@ -125,15 +108,52 @@ do
 	running=$(ps -aux | grep 'bin/trac-all' | wc -l)
 done # wait
 
-# auto retry
+
+#trac-all -bedp
+cat $1 | while read fsid dwi
+do
+  running=$(ps -aux | grep 'bin/trac-all' | wc -l)
+  while [ $running -gt $maxrunning ];
+  do
+    sleep 60
+    running=$(ps -aux | grep 'bin/trac-all' | wc -l)
+  done
+    trac-all -bedp -c $2 -i $dwi -s $fsid &
+done
+# "wait" can not catch trac-all!!
+running=$(ps -aux | grep 'bin/trac-all' | wc -l)
+while [ $running -gt 1 ]; # 1 for grep itself
+do
+	sleep 60
+	running=$(ps -aux | grep 'bin/trac-all' | wc -l)
+done # wait
+
+
+#trac-all -path
+cat $1 | while read fsid dwi
+do
+  running=$(ps -aux | grep 'bin/trac-all' | wc -l)
+  while [ $running -gt $maxrunning ];
+  do
+    sleep 60
+    running=$(ps -aux | grep 'bin/trac-all' | wc -l)
+  done
+    trac-all -path -c $2 -i $dwi -s $fsid &
+done
+# "wait" can not catch trac-all!!
+running=$(ps -aux | grep 'bin/trac-all' | wc -l)
+while [ $running -gt 1 ]; # 1 for grep itself
+do
+	sleep 60
+	running=$(ps -aux | grep 'bin/trac-all' | wc -l)
+done # wait
+
+# for retry
 temphoge=$(grep "^set dtroot = " $2);eval $(echo ${temphoge#set}|sed -e "s/ //g") # set dtroot
 dtrootdepth=$(echo ${dtroot}|sed -e "s@/@ @g"|wc -w)
-#grep "trac-preproc exited with ERRORS" ${dtroot}/U280*/scripts/trac-all.log|while read templine;do set ${templine//\//  };echo ${$(expr ${dtrootdepth} + 1)};done|sort|uniq>${dtroot}/trac_path_retrylist.txt
-#grep "trac-paths exited with ERRORS" ${dtroot}/U280*/scripts/trac-all.log|while read templine;do set ${templine//\//  };echo ${$(expr ${dtrootdepth} + 1)};done|sort|uniq>${dtroot}/trac_path_retrylist.txt
-grep " exited with ERRORS" ${dtroot}/U280*/scripts/trac-all.log|while read templine;do set ${templine//\//  };echo ${$(expr ${dtrootdepth} + 1)};done|sort|uniq>${dtroot}/trac_path_retrylist.txt
+grep " exited with ERRORS" ${dtroot}/U280*/scripts/trac-all.log|while read templine;do tempword=(${templine//\:/ });tempworddiv=($(echo ${tempword[0]}|sed -e "s@/@ @g"));echo ${tempworddiv[${dtrootdepth}]};done|sort|uniq>${dtroot}/trac_path_retrylist.txt
+<<"AUTORETRY_COMMENTOUT"
 trac_path_retryfidnum=$(cat ${dtroot}/trac_path_retrylist.txt|wc -l)
-echo trac_path_retryfidnum=${trac_path_retryfidnum}
-<<AUTORETRY_COMMENTOUT
 while [ $trac_path_retryfidnum -gt 0 ];
 do
 	cat ${dtroot}/trac_path_retrylist.txt| while read fsid
@@ -148,7 +168,7 @@ do
 	  dwi=D_${fsid}_PA.nii
 	  { trac-all -prep -c $2 -i $dwi -s $fsid ;\
 	    trac-all -bedp -c $2 -i $dwi -s $fsid ;\
-	    trac-all -path -c $2 -s $fsid ; } &
+	    trac-all -path -c $2 -i $dwi -s $fsid ; } &
 	done # while read fsid
 	# "wait" can not catch trac-all!!
 	running=$(ps -aux | grep 'bin/trac-all' | wc -l)
@@ -162,9 +182,23 @@ do
 done # while [ $trac_path_retryfidnum -gt 0 ];
 AUTORETRY_COMMENTOUT
 
-trac-all -stat -c $2 -s $fsid_list
+# statistics
+<<COMMENTOUT
+fsid_list=()
+ii=0
+for fsid_dwi in $(cat $1) # "cat $1 | while read fsid dwi" causes scope problem
+do
+	ii=$(expr $ii + 1)
+	if [ $(expr $ii % 2) = 1 ]; then
+		fsid_list+=(${fsid_dwi})
+	fi
+done
+COMMENTOUT
+cat $1 | while read fsid dwi
+do
+	trac-all -stat -c $2 -s $fsid
+done
 
-echo "fsid_list is "${fsid_list} 
 echo "the end of fs_autotrac_parallel"
 
 #exit
