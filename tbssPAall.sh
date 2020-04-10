@@ -1,10 +1,21 @@
 #!/bin/bash
 set -x # debug mode
 
+# usage:
+#  1. collect <<fid>>.nii,.bvec,.bval files of DWI in working directory
+#  2. type as follows
+# 		tbssPAall.sh "<<fid>>" "<<group1 in regular expression>>" "<<group2 in regular expression>>"
+# 	for example
+# 		tbssPAall.sh "D_U280*_*_PA" "^D_U280.*_1_PA$" "^D_U280.*_2_PA$"
+#	note that wild card in regular expression is not * but .*
+
 # users definition
-TBSSALL_ID=D_U280*_*_PA
-TBSSALL_1REGEXP=^D_U280.*_1_PA$
-TBSSALL_2REGEXP=^D_U280.*_2_PA$
+TBSSALL_ID=$1
+#TBSSALL_ID=D_U280*_*_PA
+TBSSALL_1REGEXP=$2
+#TBSSALL_1REGEXP=^D_U280.*_1_PA$
+TBSSALL_2REGEXP=$3
+#TBSSALL_2REGEXP=^D_U280.*_2_PA$
 
 #cd $SUBJECTS_DIR
 temp_n1=$(ls |grep ${TBSSALL_1REGEXP}|wc -l)
