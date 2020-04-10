@@ -1,9 +1,18 @@
 #!/bin/bash
 set -x # debug mode
 
+# usage:
+#  1. collect <<fid>>.nii,.bvec,.bval files of DWI in working directory
+#  2. type as follows
+# 		dtiPAall.sh <<fid in regular expression>>
+# 	for example
+# 		dtiPAall.sh ^D_U280.._[12]_PA
+#	note that wild card in regular expression is not * but .*
+
 # users definition
 # files DTIALL_ID_REGEXP.* -> DTIALL_ID_REGEXP/DTIALL_ID_REGEXP.*
-DTIALL_ID_REGEXP=^D_U280.._[12]_PA
+DTIALL_ID_REGEXP=$1
+#DTIALL_ID_REGEXP=^D_U280.._[12]_PA
 DTIALL_SFX_STEP2A=_den
 DTIALL_SFX_STEP2B=_noise
 DTIALL_SFX_STEP3A=_den_unr
