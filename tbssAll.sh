@@ -4,18 +4,15 @@ set -x # debug mode
 # usage:
 #  1. collect <<fid>>.nii,.bvec,.bval files of DWI in working directory
 #  2. type as follows
-# 		tbssPAall.sh "<<fid>>" "<<group1 in regular expression>>" "<<group2 in regular expression>>"
+# 		tbssAll.sh "<<fid>>" "<<group1 in regular expression>>" "<<group2 in regular expression>>"
 # 	for example
-# 		tbssPAall.sh "D_U280*_*_PA" "^D_U280.*_1_PA$" "^D_U280.*_2_PA$"
+# 		tbssAll.sh "D_U280*_*_PA" "^D_U280.*_1_PA$" "^D_U280.*_2_PA$"
 #	note that wild card in regular expression is not * but .*
 
 # users definition
 TBSSALL_ID=$1
-#TBSSALL_ID=D_U280*_*_PA
 TBSSALL_1REGEXP=$2
-#TBSSALL_1REGEXP=^D_U280.*_1_PA$
 TBSSALL_2REGEXP=$3
-#TBSSALL_2REGEXP=^D_U280.*_2_PA$
 
 #cd $SUBJECTS_DIR
 temp_n1=$(ls |grep ${TBSSALL_1REGEXP}|wc -l)
@@ -27,12 +24,26 @@ export FSLPARALLEL=1
 # FA
 mkdir TBSS;cp ${TBSSALL_ID}/*FA.nii.gz TBSS
 cd TBSS;
+#
+<<"COMMENTOUT1"
+You will make later analysis easier if you name the images in a logical order, 
+for example so that all controls are listed before all patients:
+  CON_N00300_dti_data_FA.nii.gz
+  CON_N00302_dti_data_FA.nii.gz
+  CON_N00499_dti_data_FA.nii.gz
+  PAT_N00373_dti_data_FA.nii.gz
+  PAT_N00422_dti_data_FA.nii.gz
+  PAT_N03600_dti_data_FA.nii.gz
+COMMENTOUT1
+rename "s/^/CON_/" $(ls |grep ${TBSSALL_1REGEXP%$}_FA.nii.gz$)
+rename "s/^/PAT_/" $(ls |grep ${TBSSALL_2REGEXP%$}_FA.nii.gz$)
+exit
+#
 tbss_1_preproc *FA.nii.gz
 tbss_2_reg -T
 #tbss_3_postreg -T # for a few samples case
 tbss_3_postreg -S # for many samples case
 tbss_4_prestats 0.2
-
 
 # nonFA
 mkdir MD;cp ../${TBSSALL_ID}/*MD.nii.gz MD
