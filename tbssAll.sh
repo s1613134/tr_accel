@@ -23,7 +23,6 @@ export FSLPARALLEL=1
 
 # FA
 mkdir TBSS;cp ${TBSSALL_ID}/*FA.nii.gz TBSS
-cd TBSS;
 #
 <<"COMMENTOUT1"
 You will make later analysis easier if you name the images in a logical order, 
@@ -35,10 +34,10 @@ for example so that all controls are listed before all patients:
   PAT_N00422_dti_data_FA.nii.gz
   PAT_N03600_dti_data_FA.nii.gz
 COMMENTOUT1
-rename "s/^/CON_/" $(ls |grep ${TBSSALL_1REGEXP%$}_FA.nii.gz$)
-rename "s/^/PAT_/" $(ls |grep ${TBSSALL_2REGEXP%$}_FA.nii.gz$)
-exit
+rename "s@TBSS/@TBSS/CON_@" $(ls TBSS/*|grep $(echo ${TBSSALL_1REGEXP%$}|cut -c 2-)_FA.nii.gz$)
+rename "s@TBSS/@TBSS/PAT_@" $(ls TBSS/*|grep $(echo ${TBSSALL_2REGEXP%$}|cut -c 2-)_FA.nii.gz$)
 #
+cd TBSS;
 tbss_1_preproc *FA.nii.gz
 tbss_2_reg -T
 #tbss_3_postreg -T # for a few samples case
@@ -47,6 +46,8 @@ tbss_4_prestats 0.2
 
 # nonFA
 mkdir MD;cp ../${TBSSALL_ID}/*MD.nii.gz MD
+rename "s@MD/@MD/CON_@" $(ls MD/*|grep $(echo ${TBSSALL_1REGEXP%$}|cut -c 2-)_MD.nii.gz$)
+rename "s@MD/@MD/PAT_@" $(ls MD/*|grep $(echo ${TBSSALL_2REGEXP%$}|cut -c 2-)_MD.nii.gz$)
 rename "s/_MD.nii.gz/_FA.nii.gz/" MD/*_MD.nii.gz
 tbss_non_FA MD
 
