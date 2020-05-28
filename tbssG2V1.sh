@@ -3,6 +3,9 @@ set -x # debug mode
 
 # usage:
 #  1. collect <<fid>>.nii,.bvec,.bval files of DWI in working directory
+#  !!! temp !!!
+#     collect <<design filename>>.mat.txt <<design filename>>.con.txt files from Excel file in working directory
+#
 #  2. type as follows
 # 		tbssG2V1.sh "<<fid>>" "<<group1 in regular expression>>" "<<group2 in regular expression>>" <<design filename>>
 # 	for example
@@ -24,6 +27,9 @@ export FSLPARALLEL=1
 
 #
 # $DESIGN_FILENAME.mat.txt and $DESIGN_FILENAME.con.txt from excel file
+#
+# !!! todo !!!
+# call python .py to make .txt files
 #
 Text2Vest $DESIGN_FILENAME.mat.txt $DESIGN_FILENAME.mat
 Text2Vest $DESIGN_FILENAME.con.txt $DESIGN_FILENAME.con
