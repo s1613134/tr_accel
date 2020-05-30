@@ -14,12 +14,11 @@ TBSSALL_ID=$1
 TBSSALL_1REGEXP=$2
 TBSSALL_2REGEXP=$3
 
-#cd $SUBJECTS_DIR
 temp_n1=$(ls |grep ${TBSSALL_1REGEXP}|wc -l)
 temp_n2=$(ls |grep ${TBSSALL_2REGEXP}|wc -l)
 
 # for Chris Rorden's fsl_sub case
-export FSLPARALLEL=1
+#export FSLPARALLEL=1
 
 # FA
 mkdir TBSS;cp ${TBSSALL_ID}/*FA.nii.gz TBSS
