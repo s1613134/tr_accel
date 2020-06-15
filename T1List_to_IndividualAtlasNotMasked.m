@@ -14,6 +14,31 @@ temp_icbm='/home/brain/git/spm12/toolbox/DARTEL/icbm152.nii'
 temp_tpm='/home/brain/git/spm12/tpm/TPM.nii'
 temp_aal='/home/brain/git/spm12/atlas/aal.nii'
 
+temp_tol=0.001; % as EPSilon
+
+% condition of cerebellum mask for atlas
+%{
+68; 69	Cerebellum crus
+70; 71	Cerebellum
+91; 92	Cerebellum crus 1
+93; 94	Cerebellum crus 2
+95; 96	Cerebellum 3
+97; 98	Cerebellum 4 5
+99; 100	Cerebellum 6
+101; 102	Cerebellum 7
+103; 104	Cerebellum 8
+105; 106	Cerebellum 9
+107; 108	Cerebellum 10
+%}
+%list_cerebellum=[68 69 70 71 91 92 93 94 95 96 97 98 99 100 101 102 103 104 105 106 107 108]
+list_cerebellum=[91 92 93 94 95 96 97 98 99 100 101 102 103 104 105 106 107 108]
+num_cereb = length(list_cerebellum);
+temp_exp='(i1*0)';
+for k = 1:num_cereb
+	temp_exp=strcat(temp_exp,' + ','((i1>',string(list_cerebellum(k)-temp_tol),')&(i1<',string(list_cerebellum(k)+temp_tol),'))');
+end % for 
+temp_exp=char(temp_exp);
+
 str_thd=string(temp_thd)
 %% Select T1 file and atlas file
 numfiles = length(Vlist);
@@ -26,7 +51,7 @@ for k = 1:numfiles
 	fprintf(strcat("PET input :	",p1vol,"\n"))
 
 	% call subroutine
-	T1List_to_IndividualAtlasNotMasked_sub(t1vol,p1vol,fid_prefix,str_thd);
+	T1List_to_IndividualAtlasNotMasked_sub(t1vol,p1vol,fid_prefix,str_thd,temp_exp);
 
 	% move results
 	fid_thd=strcat(fid,"_",str_thd)%;
@@ -40,7 +65,7 @@ for k = 1:numfiles
 end % for 
 end % function T1List_to_IndividualAtlasNotMasked(Vlist)
 
-function T1List_to_IndividualAtlasNotMasked_sub(t1vol,p1vol,fid_prefix,str_thd)
+function T1List_to_IndividualAtlasNotMasked_sub(t1vol,p1vol,fid_prefix,str_thd,temp_exp)
 global temp_icbm temp_tpm temp_aal
 
 %gt1_thd=char(strcat('i2.*(i1>',str_thd,')'))%;
@@ -128,7 +153,7 @@ matlabbatch{4}.spm.util.defs.out{1}.pull.interp = 0;
 matlabbatch{4}.spm.util.defs.out{1}.pull.mask = 1;
 matlabbatch{4}.spm.util.defs.out{1}.pull.fwhm = [0 0 0];
 matlabbatch{4}.spm.util.defs.out{1}.pull.prefix = fid_prefix;
-% not mask atlas
+
 matlabbatch{5}.spm.util.imcalc.input(1) = cfg_dep('Coregister: Estimate & Reslice: Resliced Images', substruct('.','val', '{}',{2}, '.','val', '{}',{1}, '.','val', '{}',{1}, '.','val', '{}',{1}), substruct('.','rfiles'));
 matlabbatch{5}.spm.util.imcalc.input(2) = cfg_dep('Segment: c1 Images', substruct('.','val', '{}',{3}, '.','val', '{}',{1}, '.','val', '{}',{1}), substruct('.','tiss', '()',{1}, '.','c', '()',{':'}));
 matlabbatch{5}.spm.util.imcalc.output = '';
@@ -140,8 +165,30 @@ matlabbatch{5}.spm.util.imcalc.options.mask = 0;
 matlabbatch{5}.spm.util.imcalc.options.interp = 0;
 matlabbatch{5}.spm.util.imcalc.options.dtype = 16;
 
+% cerebellum mask for atlas
+matlabbatch{6}.spm.util.imcalc.input(1) = cfg_dep('Deformations: Warped Images', substruct('.','val', '{}',{4}, '.','val', '{}',{1}, '.','val', '{}',{1}), substruct('.','warped'));
+matlabbatch{6}.spm.util.imcalc.output = '';
+matlabbatch{6}.spm.util.imcalc.outdir = {''};
+matlabbatch{6}.spm.util.imcalc.expression = temp_exp;
+matlabbatch{6}.spm.util.imcalc.var = struct('name', {}, 'value', {});
+matlabbatch{6}.spm.util.imcalc.options.dmtx = 0;
+matlabbatch{6}.spm.util.imcalc.options.mask = 0;
+matlabbatch{6}.spm.util.imcalc.options.interp = 0;
+matlabbatch{6}.spm.util.imcalc.options.dtype = 16;
+
+matlabbatch{7}.spm.util.imcalc.input(2) = cfg_dep('Coregister: Estimate & Reslice: Resliced Images', substruct('.','val', '{}',{2}, '.','val', '{}',{1}, '.','val', '{}',{1}, '.','val', '{}',{1}), substruct('.','rfiles'));
+matlabbatch{7}.spm.util.imcalc.input(1) = cfg_dep('Image Calculator: ImCalc Computed Image: ', substruct('.','val', '{}',{6}, '.','val', '{}',{1}, '.','val', '{}',{1}), substruct('.','files'));
+matlabbatch{7}.spm.util.imcalc.output = '';
+matlabbatch{7}.spm.util.imcalc.outdir = {''};
+matlabbatch{7}.spm.util.imcalc.expression = 'i1.*i2';
+matlabbatch{7}.spm.util.imcalc.var = struct('name', {}, 'value', {});
+matlabbatch{7}.spm.util.imcalc.options.dmtx = 0;
+matlabbatch{7}.spm.util.imcalc.options.mask = 0;
+matlabbatch{7}.spm.util.imcalc.options.interp = 0;
+matlabbatch{7}.spm.util.imcalc.options.dtype = 16;
+
 %% Run batch
 %spm_jobman('interactive',matlabbatch);
 spm_jobman('run',matlabbatch);
 
-end % function T1List_to_IndividualAtlasNotMasked_sub(t1vol,p1vol,fid_prefix,str_thd)
+end % function T1List_to_IndividualAtlasNotMasked_sub(t1vol,p1vol,fid_prefix,str_thd,temp_exp)
