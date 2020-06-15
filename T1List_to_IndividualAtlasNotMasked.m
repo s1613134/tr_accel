@@ -39,6 +39,27 @@ for k = 1:num_cereb
 end % for 
 temp_exp=char(temp_exp);
 
+%{
+67	Vermis
+109	Vermis 12
+110	Vermis 3
+111	Vermis 4 5
+112	Vermis 6
+113	Vermis 7
+114	Vermis 8
+115	Vermis 9
+116	Vermis 10
+%}
+%list_vermis=[67 109 110 111 112 113 114 115 116]
+list_vermis=[109 110 111 112 113 114 115 116]
+num_verm = length(list_vermis);
+vtemp_exp='(i1*0)';
+for k = 1:num_verm
+	%vtemp_exp=strcat(vtemp_exp,' + ','i1.*((i1>',string(list_vermis(k)-temp_tol),')&(i1<',string(list_vermis(k)+temp_tol),'))');
+	vtemp_exp=strcat(vtemp_exp,' + ','((i1>',string(list_vermis(k)-temp_tol),')&(i1<',string(list_vermis(k)+temp_tol),'))');
+end % for 
+vtemp_exp=char(vtemp_exp);
+
 str_thd=string(temp_thd)
 %% Select T1 file and atlas file
 numfiles = length(Vlist);
@@ -51,7 +72,7 @@ for k = 1:numfiles
 	fprintf(strcat("PET input :	",p1vol,"\n"))
 
 	% call subroutine
-	T1List_to_IndividualAtlasNotMasked_sub(t1vol,p1vol,fid_prefix,str_thd,temp_exp);
+	T1List_to_IndividualAtlasNotMasked_sub(t1vol,p1vol,fid_prefix,str_thd,temp_exp,vtemp_exp);
 
 	% move results
 	fid_thd=strcat(fid,"_",str_thd)%;
@@ -65,13 +86,14 @@ for k = 1:numfiles
 end % for 
 end % function T1List_to_IndividualAtlasNotMasked(Vlist)
 
-function T1List_to_IndividualAtlasNotMasked_sub(t1vol,p1vol,fid_prefix,str_thd,temp_exp)
+function T1List_to_IndividualAtlasNotMasked_sub(t1vol,p1vol,fid_prefix,str_thd,temp_exp,vtemp_exp)
 global temp_icbm temp_tpm temp_aal
 
 %gt1_thd=char(strcat('i2.*(i1>',str_thd,')'))%;
-%gt1_thd='i2.*(i1>0.3)'
 gt2_thd=char(strcat('i1.*(i2>',str_thd,')'));
-%gt2_thd='i1.*(i2>0.3)'
+
+cereb_prefix=strcat('CB_',fid_prefix,'aal')
+verm_prefix=strcat('VM_',fid_prefix,'aal')
 
 %% Initialize
 spm_jobman('initcfg');
@@ -167,7 +189,7 @@ matlabbatch{5}.spm.util.imcalc.options.dtype = 16;
 
 % cerebellum mask for atlas
 matlabbatch{6}.spm.util.imcalc.input(1) = cfg_dep('Deformations: Warped Images', substruct('.','val', '{}',{4}, '.','val', '{}',{1}, '.','val', '{}',{1}), substruct('.','warped'));
-matlabbatch{6}.spm.util.imcalc.output = '';
+matlabbatch{6}.spm.util.imcalc.output = cereb_prefix;
 matlabbatch{6}.spm.util.imcalc.outdir = {''};
 matlabbatch{6}.spm.util.imcalc.expression = temp_exp;
 matlabbatch{6}.spm.util.imcalc.var = struct('name', {}, 'value', {});
@@ -186,6 +208,28 @@ matlabbatch{7}.spm.util.imcalc.options.dmtx = 0;
 matlabbatch{7}.spm.util.imcalc.options.mask = 0;
 matlabbatch{7}.spm.util.imcalc.options.interp = 0;
 matlabbatch{7}.spm.util.imcalc.options.dtype = 16;
+
+% vermis mask for atlas
+matlabbatch{8}.spm.util.imcalc.input(1) = cfg_dep('Deformations: Warped Images', substruct('.','val', '{}',{4}, '.','val', '{}',{1}, '.','val', '{}',{1}), substruct('.','warped'));
+matlabbatch{8}.spm.util.imcalc.output = verm_prefix;
+matlabbatch{8}.spm.util.imcalc.outdir = {''};
+matlabbatch{8}.spm.util.imcalc.expression = vtemp_exp;
+matlabbatch{8}.spm.util.imcalc.var = struct('name', {}, 'value', {});
+matlabbatch{8}.spm.util.imcalc.options.dmtx = 0;
+matlabbatch{8}.spm.util.imcalc.options.mask = 0;
+matlabbatch{8}.spm.util.imcalc.options.interp = 0;
+matlabbatch{8}.spm.util.imcalc.options.dtype = 16;
+
+matlabbatch{9}.spm.util.imcalc.input(2) = cfg_dep('Coregister: Estimate & Reslice: Resliced Images', substruct('.','val', '{}',{2}, '.','val', '{}',{1}, '.','val', '{}',{1}, '.','val', '{}',{1}), substruct('.','rfiles'));
+matlabbatch{9}.spm.util.imcalc.input(1) = cfg_dep('Image Calculator: ImCalc Computed Image: ', substruct('.','val', '{}',{8}, '.','val', '{}',{1}, '.','val', '{}',{1}), substruct('.','files'));
+matlabbatch{9}.spm.util.imcalc.output = '';
+matlabbatch{9}.spm.util.imcalc.outdir = {''};
+matlabbatch{9}.spm.util.imcalc.expression = 'i1.*i2';
+matlabbatch{9}.spm.util.imcalc.var = struct('name', {}, 'value', {});
+matlabbatch{9}.spm.util.imcalc.options.dmtx = 0;
+matlabbatch{9}.spm.util.imcalc.options.mask = 0;
+matlabbatch{9}.spm.util.imcalc.options.interp = 0;
+matlabbatch{9}.spm.util.imcalc.options.dtype = 16;
 
 %% Run batch
 %spm_jobman('interactive',matlabbatch);
