@@ -33,19 +33,21 @@ for k = 1:numfiles
 
 	rt1vol_0=fullfile(pwd,strcat('rV_',fid,'.nii'));
 	brt1vol_0=fullfile(pwd,strcat('rrV_',fid,'.nii'));
+	mbrt1vol_0=fullfile(pwd,strcat('rrrV_',fid,'.nii'));
 	% run ROBEX
-	temp_cmnd=strcat('runROBEX.sh',string(' '),rt1vol_0,string(' '),brt1vol_0); % to expand t2vol, t3vol
+	temp_cmnd=strcat('runROBEX.sh',string(' '),rt1vol_0,string(' '),brt1vol_0,string(' '),mbrt1vol_0); % to expand rt1vol_0, brt1vol_0, mbrt1vol_0
 	temp_result=system(temp_cmnd);
 
 	rt1vol=strcat(rt1vol_0,',1');
-	brt1vol=strcat(brt1vol_0,',1');
+	%brt1vol=strcat(brt1vol_0,',1');
+	mbrt1vol=strcat(mbrt1vol_0,',1');
 	p1vol=fullfile(pwd,strcat('A_',fid,'.nii,1'));
 	rp1vol=fullfile(pwd,strcat('rA_',fid,'.nii,1')); % name is prediction
 	fid_prefix=strcat(fid,'_');
 	fprintf(strcat("resliced T1 input :	",rt1vol,"\n"))
 	fprintf(strcat("PET input :	",p1vol,"\n"))
 	% call subroutine
-	ReSlice_to_RobexMaskPET_sub(rt1vol,p1vol,fid_prefix,str_thd,brt1vol,rp1vol);
+	ReSlice_to_RobexMaskPET_sub(rt1vol,p1vol,fid_prefix,str_thd,mbrt1vol,rp1vol);
 
 	if k==1
 		temp_cmnd=strcat('touch',string(' '),temp_filename,';3dROIstats -nzmean -nobriklab -nomeanout -mask',string(' '),fid,'_aal.nii',string(' '),'iirA_',fid,'.nii>',temp_filename); % to expand
@@ -100,7 +102,7 @@ spm_jobman('run',matlabbatch1);
 
 end % function T1List_ReSlice_sub(t1vol)
 
-function ReSlice_to_RobexMaskPET_sub(rt1vol,p1vol,fid_prefix,str_thd,brt1vol,rp1vol)
+function ReSlice_to_RobexMaskPET_sub(rt1vol,p1vol,fid_prefix,str_thd,mbrt1vol,rp1vol)
 global temp_icbm temp_tpm temp_aal
 
 %gt1_thd=char(strcat('i2.*(i1>',str_thd,')'))%;
@@ -184,11 +186,12 @@ matlabbatch2{3}.spm.util.defs.out{1}.pull.prefix = fid_prefix;
 %% mask PET by ROBEX
 matlabbatch2{4}.spm.util.imcalc.input = {
                                         rp1vol
-                                        brt1vol
+                                        mbrt1vol
                                         };
 matlabbatch2{4}.spm.util.imcalc.output = '';
 matlabbatch2{4}.spm.util.imcalc.outdir = {''};
-matlabbatch2{4}.spm.util.imcalc.expression = '(i2>0).*i1';
+%matlabbatch2{4}.spm.util.imcalc.expression = '(i2>0).*i1';
+matlabbatch2{4}.spm.util.imcalc.expression = 'i2.*i1';
 matlabbatch2{4}.spm.util.imcalc.var = struct('name', {}, 'value', {});
 matlabbatch2{4}.spm.util.imcalc.options.dmtx = 0;
 matlabbatch2{4}.spm.util.imcalc.options.mask = 0;
@@ -210,4 +213,4 @@ matlabbatch2{5}.spm.util.imcalc.options.dtype = 16;
 %spm_jobman('interactive',matlabbatch2);
 spm_jobman('run',matlabbatch2);
 
-end % function ReSlice_to_RobexMaskPET_sub(rt1vol,p1vol,fid_prefix,brt1vol,rp1vol)
+end % function ReSlice_to_RobexMaskPET_sub(rt1vol,p1vol,fid_prefix,mbrt1vol,rp1vol)
