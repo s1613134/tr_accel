@@ -78,26 +78,26 @@ for ii in $(seq 0 $(expr $list1n - 1));do
 	## cerebellum
 	crb_ave=0
 	for ii in $(seq $(expr $voxelz_hdr + $crb_s - 1) $(expr $voxelz_hdr + $crb_e - 1));do
-	    crb_ave=$(echo "$crb_ave + ${voxelz[$ii]} * ${amyloidz[$ii]}"|bc)
+	    crb_ave=$(echo "$crb_ave + ${voxelz[$ii]} * ${amyloidz[$ii]}"|bc -l)
 	done
-	crb_mean=$(echo $crb_ave / $crb_all|bc) # integer
+	crb_mean=$(echo $crb_ave / $crb_all|bc -l) # not integer by -l option
 	#echo int crb_mean is $crb_mean
 	## vermis
 	vms_ave=0
 	for ii in $(seq $(expr $voxelz_hdr + $vms_s - 1) $(expr $voxelz_hdr + $vms_e - 1));do
-	    vms_ave=$(echo "$vms_ave + ${voxelz[$ii]} * ${amyloidz[$ii]}"|bc)
+	    vms_ave=$(echo "$vms_ave + ${voxelz[$ii]} * ${amyloidz[$ii]}"|bc -l)
 	done
-	vms_mean=$(echo $vms_ave / $vms_all|bc) # integer
+	vms_mean=$(echo $vms_ave / $vms_all|bc -l) # not integer by -l option
 	#echo int vms_mean is $vms_mean
 
 	# calculate SUVR
 	outlist1=("") # empty array
 	outlist2=("") # empty array
-	outlist3=("") # empty array#
+	outlist3=("") # empty array
 	#outlist4=("") # empty array
 	for ii in $(seq $voxelz_hdr $(expr $voxelz_hdr + $crb_s - 2));do
-		crb_suvr=$(echo "0.01*(100 * ${amyloidz[$ii]} / $crb_mean)"|bc)
-		vms_suvr=$(echo "0.01*(100 * ${amyloidz[$ii]} / $vms_mean)"|bc)
+		crb_suvr=$(echo "${amyloidz[$ii]} / $crb_mean"|bc -l)
+		vms_suvr=$(echo "${amyloidz[$ii]} / $vms_mean"|bc -l)
 		outlist1+=(${amyloidz[$ii]})
 		outlist2+=($crb_suvr)
 		outlist3+=($vms_suvr)
